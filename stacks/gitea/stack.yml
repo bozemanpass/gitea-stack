@@ -6,9 +6,9 @@ repos:
   - github.com/telackey/gitea-stack
   - gitea.com/gitea/act_runner
 containers:
-  - cerc/gitea
-  - cerc/act-runner
-  - cerc/act-runner-task-executor
+  - bpi/gitea
+  - bpi/act-runner
+  - bpi/act-runner-task-executor
 pods:
   - name: gitea
     repository: telackey/gitea-stack

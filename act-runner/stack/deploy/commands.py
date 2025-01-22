@@ -13,14 +13,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http:#www.gnu.org/licenses/>.
 
+import os
+
 from pathlib import Path
 from shutil import copy
 
 
 def create(context, extra_args):
     # Our goal here is just to copy the config file for act
-    deployment_config_dir = context.deployment_dir.joinpath("data",
+
+    #k8s
+    deployment_config_dir = context.deployment_dir.joinpath("configmaps",
                                                             "act-runner-config")
+    #docker
+    if not os.path.exists(deployment_config_dir):
+        deployment_config_dir = context.deployment_dir.joinpath("data",
+                                                                "act-runner-config")
     command_context = extra_args[2]
     compose_file = [f for f in command_context.cluster_context.compose_files if "act-runner" in f][0]
     source_config_file = Path(compose_file).parent.joinpath("config", "act-runner-config.yml")

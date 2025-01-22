@@ -1,7 +1,7 @@
 
 services:
   server:
-    image: cerc/gitea:local
+    image: bpi/gitea:local
     environment:
       - USER_UID=1000
       - USER_GID=1000

@@ -4,4 +4,4 @@ source ${CERC_CONTAINER_BASE_DIR}/build-base.sh
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd ${CERC_REPO_BASE_DIR}/gitea-stack/act-runner
-docker build -t cerc/act-runner-task-executor:local -f Dockerfile.task-executor ${build_command_args} .
+docker build -t bpi/act-runner-task-executor:local -f Dockerfile.task-executor ${build_command_args} .
