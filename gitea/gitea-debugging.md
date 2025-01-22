@@ -76,7 +76,7 @@ index 7b858350f..26bd2eeb3 100755
 +++ b/docker/root/etc/s6/gitea/run
 @@ -1,6 +1,25 @@
  #!/bin/bash
-+if [ -n "$CERC_SCRIPT_DEBUG" ]; then
++if [ -n "$BPI_SCRIPT_DEBUG" ]; then
 +    set -x
 +fi
 +
@@ -93,7 +93,7 @@ index 7b858350f..26bd2eeb3 100755
 +# exec -a "$0" "$GITEA" $CONF_ARG "$@"
 +
 +START_CMD="/usr/local/bin/gitea"
-+if [ "true" == "$CERC_REMOTE_DEBUG" ] && [ -x "/usr/local/bin/dlv" ]; then
++if [ "true" == "$BPI_REMOTE_DEBUG" ] && [ -x "/usr/local/bin/dlv" ]; then
 +    START_CMD="/usr/local/bin/dlv --listen=:40000 --headless=true --api-version=2 --accept-multiclient exec "$GITEA"  --continue --"
 +fi
 +
@@ -106,7 +106,7 @@ index 7b858350f..26bd2eeb3 100755
 ### Changes to the compose config
 
 1. Specify the newly build container image.
-1. Enable remote debugging with `CERC_REMOTE_DEBUG=true`
+1. Enable remote debugging with `BPI_REMOTE_DEBUG=true`
 1. Enable trace logging with `GITEA__log__LEVEL=Trace`
 1. Mount the project source into the container (path must be the same absolute path as on the host)
 1. Map the go debug port (40000 in this case) into the host.
@@ -123,7 +123,7 @@ index 59fea80..35feed0 100644
 -    image: gitea/gitea:1.19.3
 +    image: my-org/gitea:debug
      environment:
-+      - CERC_REMOTE_DEBUG=true
++      - BPI_REMOTE_DEBUG=true
        - USER_UID=1000
        - USER_GID=1000
        - GITEA__database__DB_TYPE=postgres

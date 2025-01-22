@@ -2,7 +2,7 @@
 # Script that calls the Giteap API to migrate one repo from
 # a source hosting platform into that Gitea instance
 
-if [[ -n "$CERC_SCRIPT_DEBUG" ]]; then
+if [[ -n "$BPI_SCRIPT_DEBUG" ]]; then
     set -x
 fi
 
@@ -12,15 +12,15 @@ if ! [[ $# -eq 1 ]]; then
 fi
 repo_to_migrate=$1
 
-if [[ -z "${CERC_GITEA_AUTH_TOKEN}" ]]; then
-    echo "CERC_GITEA_AUTH_TOKEN is not set" >&2
+if [[ -z "${BPI_GITEA_AUTH_TOKEN}" ]]; then
+    echo "BPI_GITEA_AUTH_TOKEN is not set" >&2
     exit 1
 fi
-if [[ -z "${CERC_GITEA_API_URL}" ]]; then
-    echo "CERC_GITEA_API_URL is not set" >&2
+if [[ -z "${BPI_GITEA_API_URL}" ]]; then
+    echo "BPI_GITEA_API_URL is not set" >&2
     exit 1
 fi
-if [[ "${CERC_GITEA_MIRROR_REPO}" == "true" ]]; then
+if [[ "${BPI_GITEA_MIRROR_REPO}" == "true" ]]; then
     is_mirror=true
 else
     is_mirror=false
@@ -41,8 +41,8 @@ fi
 github_repo_url="https://github.com/${repo_to_migrate}"
 echo "Migrating repo: ${repo_to_migrate} (mirror:${is_mirror})"
 # Note use: --trace-ascii - \ below to see the raw request
-migrate_response=$( curl -s -X POST "${CERC_GITEA_API_URL}/api/v1/repos/migrate" \
-      -H "Authorization: token ${CERC_GITEA_AUTH_TOKEN}" \
+migrate_response=$( curl -s -X POST "${BPI_GITEA_API_URL}/api/v1/repos/migrate" \
+      -H "Authorization: token ${BPI_GITEA_AUTH_TOKEN}" \
       -H "Content-Type: application/json" \
       -H  "accept: application/json" \
       -d @- << EOF
