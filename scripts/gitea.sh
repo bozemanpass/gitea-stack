@@ -40,16 +40,14 @@ sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 stack --stack ~/bpi/gitea-stack/stacks/gitea deploy \
  --deploy-to k8s init --output gitea.yml \
  --kube-config /etc/rancher/k3s/k3s.yaml \
- --image-registry registry.digitalocean.com/bozemanpass
+ --image-registry $IMAGE_REGISTRY/bozemanpass
 
 mkdir $HOME/deployments
 
 stack --stack ~/bpi/gitea-stack/stacks/gitea deploy \
    create --spec-file gitea.yml --deployment-dir $HOME/deployments/gitea
 
-if [[ -n "$IMAGE_REGISTRY" ]]; then
-  docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
-fi
+docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
 
 stack deployment --dir $HOME/deployments/gitea push-images
 stack deployment --dir $HOME/deployments/gitea up
