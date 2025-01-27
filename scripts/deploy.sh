@@ -3,6 +3,8 @@
 IMAGE_REGISTRY=""
 IMAGE_REGISTRY_USERNAME=""
 IMAGE_REGISTRY_PASSWORD=""
+HTTP_PROXY_FQDN="${BPI_MACHINE_FQDN}"
+HTTP_PROXY_CLUSTER_ISSUER=""
 
 while (( "$#" )); do
    case $1 in
@@ -14,6 +16,12 @@ while (( "$#" )); do
          ;;
       --image-registry-password)
          shift&&IMAGE_REGISTRY_PASSWORD="$1"||die
+         ;;
+      --http-proxy-fqdn)
+         shift&&HTTP_PROXY_FQDN="$1"||die
+         ;;
+      --http-proxy-cluster-issuer)
+         shift&&HTTP_PROXY_CLUSTER_ISSUER="$1"||die
          ;;
          *)
          echo "Unrecognized argument: $1" 1>&2
@@ -37,10 +45,19 @@ stack --stack ~/bpi/gitea-stack/stacks/gitea build-containers
 
 sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 
+HTTP_PROXY_ARG=""
+if [[ -n "${HTTP_PROXY_FQDN}" ]]; then
+  if [[ -n "${HTTP_PROXY_CLUSTER_ISSUER}" ]]; then
+    HTTP_PROXY_ARG="--http-proxy \"${HTTP_PROXY_CLUSTER_ISSUER}~${HTTP_PROXY_FQDN}:gitea:3000\""
+  else
+    HTTP_PROXY_ARG="--http-proxy ${HTTP_PROXY_FQDN}:gitea:3000"
+  fi
+fi
+
 stack --stack ~/bpi/gitea-stack/stacks/gitea deploy \
  --deploy-to k8s init --output gitea.yml \
  --kube-config /etc/rancher/k3s/k3s.yaml \
- --image-registry $IMAGE_REGISTRY/bozemanpass
+ --image-registry $IMAGE_REGISTRY/bozemanpass ${HTTP_PROXY_ARG}
 
 mkdir $HOME/deployments
 
