@@ -67,4 +67,4 @@ stack --stack ~/bpi/gitea-stack/stacks/gitea deploy \
 docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
 
 stack deployment --dir $HOME/deployments/gitea push-images
-stack deployment --dir $HOME/deployments/gitea up
+stack deployment --dir $HOME/deployments/gitea start
