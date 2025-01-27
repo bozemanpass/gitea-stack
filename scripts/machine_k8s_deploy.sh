@@ -48,7 +48,7 @@ sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 HTTP_PROXY_ARG=""
 if [[ -n "${HTTP_PROXY_FQDN}" ]]; then
   if [[ -n "${HTTP_PROXY_CLUSTER_ISSUER}" ]]; then
-    HTTP_PROXY_ARG="--http-proxy \"${HTTP_PROXY_CLUSTER_ISSUER}~${HTTP_PROXY_FQDN}:gitea:3000\""
+    HTTP_PROXY_ARG="--http-proxy ${HTTP_PROXY_CLUSTER_ISSUER}~${HTTP_PROXY_FQDN}:gitea:3000"
   else
     HTTP_PROXY_ARG="--http-proxy ${HTTP_PROXY_FQDN}:gitea:3000"
   fi
