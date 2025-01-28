@@ -24,7 +24,32 @@ if ! [[ -n "$BPI_GITEA_RUNNER_REGISTRATION_TOKEN" ]]; then
     BPI_GITEA_RUNNER_REGISTRATION_TOKEN=eMdEwIzSo87nBh0UFWZlbp308j6TNWr3WhWxQqIc
 fi
 
-sleep 15
+# wait for gitea
+GITEA_UP="false"
+echo -n "Waiting for gitea to start..."
+while [[ "$GITEA_UP" != "true" ]]; do
+  sleep 1
+  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea:' | grep 'Listen: ' > /dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    echo " UP"
+  else
+    echo -n "."
+  fi
+done
+
+# wait for db
+DB_UP="false"
+echo -n "Waiting for db to start..."
+while [[ "$DB_UP" != "true" ]]; do
+  sleep 1
+  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^db:' | grep 'listening on IPv4 address' >/dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    echo " UP"
+  else
+    echo -n "."
+  fi
+done
+
 EXEC_CMD="stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} exec gitea"
 EXEC_CMD_DB="stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} exec db"
 ${EXEC_CMD} "su -c 'gitea admin user list --admin' git" | grep -v -e '^ID' | awk '{ print $2 }' | grep ${GITEA_USER} > /dev/null
@@ -32,8 +57,9 @@ if [[ $? == 1 ]] ; then
     # Then create if it wasn't found
     ${EXEC_CMD} "su -c 'gitea admin user create --admin --username ${GITEA_USER} --password ${GITEA_PASSWORD} --email ${GITEA_USER_EMAIL}' git"
 fi
+
 # HACK: sleep a bit because if we don't gitea will return empty responses
-sleep 5
+sleep 8
 # Check if the token already exists
 token_response=$(${EXEC_CMD} "curl -s '${GITEA_URL_PREFIX}/api/v1/users/${GITEA_USER}/tokens' -u '${GITEA_USER}:${GITEA_PASSWORD}' -H 'Content-Type: application/json'")
 if [[ -n ${token_response} ]] ; then
