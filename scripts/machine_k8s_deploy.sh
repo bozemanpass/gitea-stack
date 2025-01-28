@@ -66,7 +66,7 @@ if [[ -n "${HTTP_PROXY_FQDN}" ]]; then
 fi
 
 $STACK_CMD \
-  --stack ~/bpi/gitea-stack/stacks/gitea
+  --stack ~/bpi/gitea-stack/stacks/gitea \
   deploy \
     --deploy-to k8s \
     init \
