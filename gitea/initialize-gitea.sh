@@ -32,6 +32,7 @@ while [[ "$GITEA_UP" != "true" ]]; do
   stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea:' | grep 'Listen: ' > /dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     echo " UP"
+    GITEA_UP="true"
   else
     echo -n "."
   fi
@@ -45,6 +46,7 @@ while [[ "$DB_UP" != "true" ]]; do
   stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^db:' | grep 'listening on IPv4 address' >/dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     echo " UP"
+    DB_UP="true"
   else
     echo -n "."
   fi
