@@ -11,7 +11,7 @@ HTTP_PROXY_CLUSTER_ISSUER=""
 while (( "$#" )); do
    case $1 in
       --debug)
-         shift&&BPI_SCRIPT_DEBUG="$1"||die
+         BPI_SCRIPT_DEBUG="true"
          ;;
       --image-registry)
          shift&&IMAGE_REGISTRY="$1"||die
@@ -35,17 +35,18 @@ while (( "$#" )); do
    shift
 done
 
+STACK_CMD="stack"
+if [[ -n "${BPI_SCRIPT_DEBUG}" ]]; then
+  set -x
+  STACK_CMD="${STACK_CMD} --debug --verbose"
+fi
+
 if [[ -z "$IMAGE_REGISTRY" ]]; then
   if [[ -f "/etc/rancher/k3s/registries.yaml" ]]; then
     IMAGE_REGISTRY=$(cat /etc/rancher/k3s/registries.yaml | grep -A1 'configs:$' | tail -1 | awk '{ print $1 }' | cut -d':' -f1)
     IMAGE_REGISTRY_USERNAME=$(cat /etc/rancher/k3s/registries.yaml | grep 'username:' | awk '{ print $2 }' | sed "s/[\"']//g")
     IMAGE_REGISTRY_PASSWORD=$(cat /etc/rancher/k3s/registries.yaml | grep 'password:' | awk '{ print $2 }' | sed "s/[\"']//g")
   fi
-fi
-
-STACK_CMD="stack"
-if [[ -n "${BPI_SCRIPT_DEBUG}" ]]; then
-  STACK_CMD="${STACK_CMD} --debug --verbose"
 fi
 
 $STACK_CMD fetch-stack telackey/gitea-stack
