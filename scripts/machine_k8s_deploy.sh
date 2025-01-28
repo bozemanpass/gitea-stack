@@ -38,7 +38,7 @@ if [[ -z "$IMAGE_REGISTRY" ]]; then
   fi
 fi
 
-stack fetch-stack telackey/gitea-stack@telackey/k8s
+stack fetch-stack telackey/gitea-stack
 
 stack --stack ~/bpi/gitea-stack/stacks/gitea setup-repositories
 stack --stack ~/bpi/gitea-stack/stacks/gitea build-containers
