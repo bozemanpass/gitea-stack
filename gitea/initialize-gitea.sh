@@ -25,9 +25,9 @@ if ! [[ -n "$BPI_GITEA_RUNNER_REGISTRATION_TOKEN" ]]; then
 fi
 
 sleep 15
-EXEC_CMD="stack deployment --dir $HOME/deployments/gitea exec gitea"
-EXEC_CMD_DB="stack deployment --dir $HOME/deployments/gitea exec db"
-${EXEC_CMD} "su -c 'gitea admin user list --admin' git | grep -v -e '^ID' | awk '{ print \$2 }' | grep ${GITEA_USER}" > /dev/null
+EXEC_CMD="stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} exec gitea"
+EXEC_CMD_DB="stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} exec db"
+${EXEC_CMD} "su -c 'gitea admin user list --admin' git" | grep -v -e '^ID' | awk '{ print $2 }' | grep ${GITEA_USER} > /dev/null
 if [[ $? == 1 ]] ; then
     # Then create if it wasn't found
     ${EXEC_CMD} "su -c 'gitea admin user create --admin --username ${GITEA_USER} --password ${GITEA_PASSWORD} --email ${GITEA_USER_EMAIL}' git"
@@ -52,9 +52,8 @@ if [[ ${token_found} != 1 ]] ; then
     # Note that we either create the token here, or we needed to be passed 
     # the token by the caller. This is because gitea won't release the token
     # plaintext post-creation.
-    new_gitea_token=$( $EXEC_CMD "curl -s '${GITEA_URL_PREFIX}/api/v1/users/${GITEA_USER}/tokens' -u '${GITEA_USER}:${GITEA_PASSWORD}' -H 'Content-Type: application/json' -d '{\"name\":\"'${BPI_GITEA_TOKEN_NAME}'\", \"scopes\": [ \"
-                       read:admin\", \"write:admin\", \"read:organization\", \"write:organization\", \"read:repository\", \"write:repository\",
-                        \"read:package\", \"write:package\" ] }'" | jq -r .sha1 )
+    new_gitea_token_response=$( $EXEC_CMD "curl -s '${GITEA_URL_PREFIX}/api/v1/users/${GITEA_USER}/tokens' -u '${GITEA_USER}:${GITEA_PASSWORD}' -H  'accept: application/json' -H 'Content-Type: application/json' -d '{\"name\":\"'${BPI_GITEA_TOKEN_NAME}'\", \"scopes\": [ \"read:admin\", \"write:admin\", \"read:organization\", \"write:organization\", \"read:repository\", \"write:repository\", \"read:package\", \"write:package\" ] }'" )
+    new_gitea_token=$(echo $new_gitea_token_response | jq -r '.["sha1"]')
     echo "NOTE: This is your gitea access token: ${new_gitea_token}. Keep it safe and secure, it can not be fetched again from gitea."
     echo "NOTE: To use with stack set this environment variable: export BPI_NPM_AUTH_TOKEN=${new_gitea_token}"
     BPI_GITEA_AUTH_TOKEN=${new_gitea_token}
@@ -70,23 +69,15 @@ fi
 # we can proceed with token-authenticated API requests below
 # Create org
 # First check if it already exists
-${EXEC_CMD} "curl -s '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs' \
-  -H 'Authorization: token ${BPI_GITEA_AUTH_TOKEN}' \
-  -H 'Content-Type: application/json' \
-  -H  'accept: application/json'" | jq --exit-status -r 'to_entries[] | select(.value.name == "'${GITEA_NEW_ORGANIZATION}'")' > /dev/null
+${EXEC_CMD} "curl -s '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs' -H 'Authorization: token ${BPI_GITEA_AUTH_TOKEN}' -H 'Content-Type: application/json' -H  'accept: application/json'" | jq --exit-status -r 'to_entries[] | select(.value.name == "'${GITEA_NEW_ORGANIZATION}'")' > /dev/null
 if [[ $? != 0 ]]; then
     # If it doesn't exist, create it
     # See: https://discourse.gitea.io/t/create-remove-organization-through-api/478
-    ${EXEC_CMD} "curl -s -X POST '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs' \
-      -H 'Authorization: token ${BPI_GITEA_AUTH_TOKEN}' \
-      -H 'Content-Type: application/json' \
-      -H  'accept: application/json' \
-      -d '{\"username\": \"\'${GITEA_NEW_ORGANIZATION}\'\"}'" > /dev/null
-    echo "Created the organization ${GITEA_NEW_ORGANIZATION}"
+    ${EXEC_CMD} "curl -s -X POST '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs' -H 'Authorization: token ${BPI_GITEA_AUTH_TOKEN}' -H 'Content-Type: application/json' -H  'accept: application/json' -d '{\"username\": \"${GITEA_NEW_ORGANIZATION}\"}'" && echo "Created the organization ${GITEA_NEW_ORGANIZATION}" || echo "Error creating organization ${GITEA_NEW_ORGANIZATION}"
 fi
 
 # Seed a token for act_runner registration.
-${EXEC_CMD_DB} "psql -U gitea -d gitea -c \"INSERT INTO public.action_runner_token(token, owner_id, repo_id, is_active, created, updated, deleted) VALUES('${BPI_GITEA_RUNNER_REGISTRATION_TOKEN}', 0, 0, 't', 1679000000, 1679000000, NULL);\"" >/dev/null
+${EXEC_CMD_DB} "psql -U gitea -d gitea -c \"INSERT INTO public.action_runner_token(token, owner_id, repo_id, is_active, created, updated, deleted) VALUES('${BPI_GITEA_RUNNER_REGISTRATION_TOKEN}', 0, 0, 't', 1679000000, 1679000000, NULL);\""
 
 echo "NOTE: Gitea was configured to use host name: gitea.local, ensure that this resolves to localhost, e.g. with sudo vi /etc/hosts"
 if ! [[ -n "$BPI_GITEA_SET_NEW_ADMIN_PASSWORD" ]]; then
