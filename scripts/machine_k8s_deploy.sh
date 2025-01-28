@@ -1,5 +1,7 @@
 #!/bin/bash
 
+BPI_SCRIPT_DEBUG="${BPI_SCRIPT_DEBUG}"
+
 IMAGE_REGISTRY=""
 IMAGE_REGISTRY_USERNAME=""
 IMAGE_REGISTRY_PASSWORD=""
@@ -8,6 +10,9 @@ HTTP_PROXY_CLUSTER_ISSUER=""
 
 while (( "$#" )); do
    case $1 in
+      --debug)
+         shift&&BPI_SCRIPT_DEBUG="$1"||die
+         ;;
       --image-registry)
          shift&&IMAGE_REGISTRY="$1"||die
          ;;
@@ -38,10 +43,15 @@ if [[ -z "$IMAGE_REGISTRY" ]]; then
   fi
 fi
 
-stack fetch-stack telackey/gitea-stack
+STACK_CMD="stack"
+if [[ -n "${BPI_SCRIPT_DEBUG}" ]]; then
+  STACK_CMD="${STACK_CMD} --debug --verbose"
+fi
 
-stack --stack ~/bpi/gitea-stack/stacks/gitea setup-repositories
-stack --stack ~/bpi/gitea-stack/stacks/gitea build-containers
+$STACK_CMD fetch-stack telackey/gitea-stack
+
+$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea setup-repositories
+$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea build-containers
 
 sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 
@@ -54,17 +64,25 @@ if [[ -n "${HTTP_PROXY_FQDN}" ]]; then
   fi
 fi
 
-stack --stack ~/bpi/gitea-stack/stacks/gitea deploy \
- --deploy-to k8s init --output gitea.yml \
- --kube-config /etc/rancher/k3s/k3s.yaml \
- --image-registry $IMAGE_REGISTRY/bozemanpass ${HTTP_PROXY_ARG}
+$STACK_CMD \
+  --stack ~/bpi/gitea-stack/stacks/gitea
+  deploy \
+    --deploy-to k8s \
+    init \
+      --output gitea.yml \
+      --kube-config /etc/rancher/k3s/k3s.yaml \
+      --image-registry $IMAGE_REGISTRY/bozemanpass ${HTTP_PROXY_ARG}
 
 mkdir $HOME/deployments
 
-stack --stack ~/bpi/gitea-stack/stacks/gitea deploy \
-   create --spec-file gitea.yml --deployment-dir $HOME/deployments/gitea
+$STACK_CMD \
+  --stack ~/bpi/gitea-stack/stacks/gitea \
+  deploy \
+    create \
+     --spec-file gitea.yml \
+     --deployment-dir $HOME/deployments/gitea
 
 docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
 
-stack deployment --dir $HOME/deployments/gitea push-images
-stack deployment --dir $HOME/deployments/gitea start
+$STACK_CMD deployment --dir $HOME/deployments/gitea push-images
+$STACK_CMD deployment --dir $HOME/deployments/gitea start
