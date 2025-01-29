@@ -128,7 +128,7 @@ index 59fea80..35feed0 100644
        - USER_GID=1000
        - GITEA__database__DB_TYPE=postgres
 @@ -15,6 +16,7 @@ services:
-       - GITEA__server__ROOT_URL=http://gitea.local:3000/
+       - GITEA__server__ROOT_URL=http://localhost:3000/
        - GITEA__actions__ENABLED=true
        - GITEA__security__INSTALL_LOCK=true
 +      - GITEA__log__LEVEL=Trace

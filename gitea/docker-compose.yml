@@ -11,8 +11,8 @@ services:
       GITEA__database__USER: ${BPI_GITEA_DB_USER:-gitea}
       GITEA__database__PASSWD: ${BPI_GITEA_DB_PASSWD:-gitea}
       GITEA__server__HTTP_PORT: ${BPI_GITEA_HTTP_PORT:-3000}
-      GITEA__server__LOCAL_ROOT_URL: ${BPI_GITEA_INSTANCE_URL:-http://gitea.local:3000}
-      GITEA__server__ROOT_URL: ${BPI_GITEA_INSTANCE_URL:-http://gitea.local:3000}
+      GITEA__server__LOCAL_ROOT_URL: ${BPI_GITEA_INSTANCE_URL:-http://localhost:3000}
+      GITEA__server__ROOT_URL: ${BPI_GITEA_INSTANCE_URL:-http://localhost:3000}
       GITEA__actions__ENABLED: true
       GITEA__security__INSTALL_LOCK: true
     restart: always
@@ -20,7 +20,6 @@ services:
       - gitea-data:/data
     ports:
       - 3000
-      - 8088
     depends_on:
       - db
 
