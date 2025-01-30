@@ -11,7 +11,7 @@ The following example uses `gitea/act_runner` 0.2.6 to deploy a runner on macOS 
 
 > Note: Runners can be registered globally for an entire Gitea instance, for a specific organization, or for a single repo.  This example registers globally.
 
-Before executing the runner, first obtain a registration token by visiting http://localhost:3000/admin/actions/runners, clicking the 'Create new Runner' button, and copying the displayed
+Before executing the runner, first obtain a registration token by visiting http://gitea.local:3000/admin/actions/runners, clicking the 'Create new Runner' button, and copying the displayed
 registration token, for example, `FTyMBkcK9ErmD0wm8LfBzfXOUUlQA7dBJF6BB64Z`.
 
 ### Runner Registration and Startup
@@ -24,7 +24,7 @@ $ wget https://gitea.com/gitea/act_runner/releases/download/latest/act_runner-0.
 
 # Register the runner with the Gitea instance using the token obtained above.
 $ ./act_runner-0.2.6-darwin-amd64 register \
-    --instance http://localhost:3000 \
+    --instance http://gitea.local:3000 \
     --labels 'darwin-latest-amd64:host,darwin-13-amd64:host' \
     --name 'darwin-amd64-001' \
     --token "FTyMBkcK9ErmD0wm8LfBzfXOUUlQA7dBJF6BB64Z" \
