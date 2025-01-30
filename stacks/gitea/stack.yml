@@ -4,11 +4,19 @@ description: "Gitea"
 repos:
   - github.com/telackey/gitea@telackey/sort
   - github.com/telackey/gitea-stack
+  - gitea.com/gitea/act_runner
 containers:
   - bpi/gitea
+  - bpi/act-runner
+  - bpi/act-runner-task-executor
 pods:
   - name: gitea
     repository: telackey/gitea-stack
     path: gitea
     pre_start_command: "run-this-first.sh"
     post_start_command: "initialize-gitea.sh"
+  - name: act-runner
+    repository: telackey/gitea-stack
+    path: act-runner
+    pre_start_command: "pre_start.sh"
+    post_start_command: "post_start.sh"

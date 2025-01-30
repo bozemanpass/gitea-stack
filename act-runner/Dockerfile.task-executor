@@ -1,0 +1,56 @@
+FROM ubuntu:22.04
+
+# Set system time zone to prevent the tzdata package from hanging looking for user input
+RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
+
+# Install basic tools
+RUN apt update && apt install -y gpg curl wget apt-transport-https ca-certificates lsb-release build-essential
+
+# Add Docker repo
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+ARG NODE_MAJOR=18
+
+# Add NodeJS repo
+# See: https://stackoverflow.com/a/77021599/1701505
+RUN set -uex; \
+    apt-get update; \
+    mkdir -p /etc/apt/keyrings; \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+     | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg; \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" \
+     > /etc/apt/sources.list.d/nodesource.list; \
+    apt-get update; \
+    apt-get install nodejs -y;
+
+# Install Docker
+RUN apt update && apt install -y docker-ce && rm -rf /var/lib/apt/lists/*
+# Install sudo because some actions projects assume it is present, and it is present in GitHub runners
+RUN apt update && apt install -y sudo
+# Make sure we have some other basic tools that scripts expect.
+RUN apt update && apt install -y wget curl jq
+# Install software-properties-common so we have the add-apt-repository command, used by some actions to add a package repo
+RUN apt update && apt install -y software-properties-common
+
+# Packages and files to support dind functionality see: https://github.com/cruizba/ubuntu-dind
+RUN apt update && apt install -y iptables supervisor
+
+COPY modprobe start-docker.sh entrypoint.sh /usr/local/bin/
+COPY supervisor/ /etc/supervisor/conf.d/
+COPY logger.sh /opt/bash-utils/logger.sh
+COPY cgroup-helper.sh /opt/bash-utils/cgroup-helper.sh
+
+RUN chmod +x /usr/local/bin/start-docker.sh \
+	/usr/local/bin/entrypoint.sh \
+	/usr/local/bin/modprobe
+
+ENV DOCKER_HOST "unix:///var/run/dind.sock"
+
+# This VOLUME directive is required for k3d to work, probably because it needs the directory to exist
+# the volume does not need to be mounted.
+VOLUME /var/lib/docker
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["bash"]
+
