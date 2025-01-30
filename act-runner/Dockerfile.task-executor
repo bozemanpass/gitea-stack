@@ -45,11 +45,11 @@ RUN chmod +x /usr/local/bin/start-docker.sh \
 	/usr/local/bin/entrypoint.sh \
 	/usr/local/bin/modprobe
 
-#ENV DOCKER_HOST "unix:///var/run/dind.sock"
+ENV DOCKER_HOST "unix:///var/run/dind.sock"
 
 # This VOLUME directive is required for k3d to work, probably because it needs the directory to exist
 # the volume does not need to be mounted.
-#VOLUME /var/lib/docker
+VOLUME /var/lib/docker
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bash"]
