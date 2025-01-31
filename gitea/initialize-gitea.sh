@@ -6,6 +6,11 @@ if [[ -n "$BPI_SCRIPT_DEBUG" ]]; then
     set -x
 fi
 
+if [[ -f "${BPI_SO_DEPLOYMENT_DIR}/.init_complete" ]]; then
+  echo "Initialization complete (if this is wrong, remove ${BPI_SO_DEPLOYMENT_DIR}/.init_complete and restart the stack)."
+  exit 0
+fi
+
 secure_password() {
     # use openssl as the source, because it behaves similarly on both linux and macos
     # we generate extra bytes so that even if tr deletes some chars we will still have plenty
@@ -29,7 +34,7 @@ GITEA_UP="false"
 echo -n "Waiting for gitea to start..."
 while [[ "$GITEA_UP" != "true" ]]; do
   sleep 1
-  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea:' | grep 'Listen: ' > /dev/null 2>&1
+  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea[:-]' | grep 'Listen: ' > /dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     echo " UP"
     GITEA_UP="true"
@@ -43,7 +48,7 @@ DB_UP="false"
 echo -n "Waiting for db to start..."
 while [[ "$DB_UP" != "true" ]]; do
   sleep 1
-  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^db:' | grep 'listening on IPv4 address' >/dev/null 2>&1
+  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^db[:-]' | grep 'listening on IPv4 address' >/dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     echo " UP"
     DB_UP="true"
@@ -101,11 +106,11 @@ ${EXEC_CMD} "curl -s '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs'
 if [[ $? != 0 ]]; then
     # If it doesn't exist, create it
     # See: https://discourse.gitea.io/t/create-remove-organization-through-api/478
-    ${EXEC_CMD} "curl -s -X POST '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs' -H 'Authorization: token ${BPI_GITEA_AUTH_TOKEN}' -H 'Content-Type: application/json' -H  'accept: application/json' -d '{\"username\": \"${GITEA_NEW_ORGANIZATION}\"}'" && echo "Created the organization ${GITEA_NEW_ORGANIZATION}" || echo "Error creating organization ${GITEA_NEW_ORGANIZATION}"
+    ${EXEC_CMD} "curl -s -X POST '${GITEA_URL_PREFIX}/api/v1/admin/users/${GITEA_USER}/orgs' -H 'Authorization: token ${BPI_GITEA_AUTH_TOKEN}' -H 'Content-Type: application/json' -H  'accept: application/json' -d '{\"username\": \"${GITEA_NEW_ORGANIZATION}\"}'" > /dev/null && echo "Created the organization ${GITEA_NEW_ORGANIZATION}" || echo "Error creating organization ${GITEA_NEW_ORGANIZATION}"
 fi
 
 # Seed a token for act_runner registration.
-${EXEC_CMD_DB} "psql -U gitea -d gitea -c \"INSERT INTO public.action_runner_token(token, owner_id, repo_id, is_active, created, updated, deleted) VALUES('${BPI_GITEA_RUNNER_REGISTRATION_TOKEN}', 0, 0, 't', 1679000000, 1679000000, NULL);\""
+${EXEC_CMD_DB} "psql -U gitea -d gitea -c \"INSERT INTO public.action_runner_token(token, owner_id, repo_id, is_active, created, updated, deleted) VALUES('${BPI_GITEA_RUNNER_REGISTRATION_TOKEN}', 0, 0, 't', 1679000000, 1679000000, NULL);\"" >/dev/null
 
 echo "NOTE: Gitea was configured to use host name: gitea.local, ensure that this resolves to localhost, e.g. with sudo vi /etc/hosts"
 if ! [[ -n "$BPI_GITEA_SET_NEW_ADMIN_PASSWORD" ]]; then
@@ -113,3 +118,5 @@ if ! [[ -n "$BPI_GITEA_SET_NEW_ADMIN_PASSWORD" ]]; then
     echo "NOTE: Please make a secure note of the password in order to log in as the admin user"
 fi
 echo "Success, gitea is properly initialized"
+
+touch "${BPI_SO_DEPLOYMENT_DIR}/.init_complete"
