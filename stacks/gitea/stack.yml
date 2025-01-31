@@ -8,7 +8,6 @@ repos:
 containers:
   - bpi/gitea
   - bpi/act-runner
-  - bpi/act-runner-task-executor
 pods:
   - name: gitea
     repository: telackey/gitea-stack
