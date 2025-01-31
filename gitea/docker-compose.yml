@@ -6,7 +6,7 @@ services:
       USER_UID: ${BPI_HOST_UID:-1000}
       USER_GID: ${BPI_HOST_GID:-1000}
       GITEA__database__DB_TYPE: postgres
-      GITEA__database__HOST: ${BPI_GITEA_DB_HOST:-localhost:5432}
+      GITEA__database__HOST: ${BPI_GITEA_DB_HOST:-db.local:5432}
       GITEA__database__NAME: ${BPI_GITEA_DB_NAME:-gitea}
       GITEA__database__USER: ${BPI_GITEA_DB_USER:-gitea}
       GITEA__database__PASSWD: ${BPI_GITEA_DB_PASSWD:-gitea}
