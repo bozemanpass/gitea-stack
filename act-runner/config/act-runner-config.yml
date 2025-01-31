@@ -46,6 +46,8 @@ container:
   privileged: true
   # And other options to be used when the container is started (eg, --add-host=my.gitea.url:host-gateway).
   options: --volume "/var/lib/docker"
+  # The "host" in this case is the act_runner dind container.  If you are using the basic act_runner container, you
+  # probably want to remove the network line and set --add-host under options instead.
   network: host
   valid_volumes:
     - act-runner-shared
