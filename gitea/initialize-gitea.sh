@@ -29,29 +29,35 @@ if ! [[ -n "$BPI_GITEA_RUNNER_REGISTRATION_TOKEN" ]]; then
     BPI_GITEA_RUNNER_REGISTRATION_TOKEN=eMdEwIzSo87nBh0UFWZlbp308j6TNWr3WhWxQqIc
 fi
 
-# wait for gitea
-GITEA_UP="false"
-echo -n "Waiting for gitea to start..."
-while [[ "$GITEA_UP" != "true" ]]; do
-  sleep 1
-  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea[:-]' | grep 'Listen: ' > /dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
-    echo " UP"
-    GITEA_UP="true"
-  else
-    echo -n "."
-  fi
-done
-
 # wait for db
 DB_UP="false"
-echo -n "Waiting for db to start..."
+echo -n "Waiting for db to up..."
 while [[ "$DB_UP" != "true" ]]; do
   sleep 1
   stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^db[:-]' | grep 'listening on IPv4 address' >/dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     echo " UP"
     DB_UP="true"
+  else
+    echo -n "."
+  fi
+done
+
+# wait for gitea
+GITEA_UP="false"
+echo -n "Waiting for gitea to be up..."
+while [[ "$GITEA_UP" != "true" ]]; do
+  sleep 1
+  stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea[:-]' | grep 'ORM engine initialization successful' > /dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    stack deployment --dir ${BPI_SO_DEPLOYMENT_DIR} logs | grep '^gitea[:-]' | grep 'Listen: ' > /dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+      GITEA_UP="true"
+    fi
+  fi
+
+  if [[ "$GITEA_UP" == "true" ]]; then
+    echo " UP"
   else
     echo -n "."
   fi
