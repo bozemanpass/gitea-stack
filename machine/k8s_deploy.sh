@@ -63,6 +63,8 @@ if [[ -n "${HTTP_PROXY_FQDN}" ]]; then
   else
     HTTP_PROXY_ARG="--http-proxy ${HTTP_PROXY_FQDN}:gitea:3000"
   fi
+else
+  echo "No FQDN set for HTTP proxy; skipping proxy setup."
 fi
 
 $STACK_CMD \
