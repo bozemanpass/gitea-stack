@@ -1,7 +1,7 @@
 
 services:
   gitea:
-    image: bpi/gitea:local
+    image: bpi/gitea:stack
     environment:
       USER_UID: ${BPI_HOST_UID:-1000}
       USER_GID: ${BPI_HOST_GID:-1000}

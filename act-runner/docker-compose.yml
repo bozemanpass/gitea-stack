@@ -1,7 +1,7 @@
 
 services:
   runner:
-    image: bpi/act-runner:local
+    image: bpi/act-runner:stack
     restart: always
     privileged: true
     environment:
