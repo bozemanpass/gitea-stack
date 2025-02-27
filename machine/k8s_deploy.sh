@@ -49,10 +49,12 @@ if [[ -z "$IMAGE_REGISTRY" ]]; then
   fi
 fi
 
+docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
+
 $STACK_CMD fetch-stack telackey/gitea-stack
 
 $STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea setup-repositories
-$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea build-containers
+$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea prepare-containers --image-registry $IMAGE_REGISTRY/bozemanpass --publish-images
 
 sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 
@@ -84,8 +86,6 @@ $STACK_CMD \
     create \
      --spec-file gitea.yml \
      --deployment-dir $HOME/deployments/gitea
-
-docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
 
 $STACK_CMD deployment --dir $HOME/deployments/gitea push-images
 $STACK_CMD deployment --dir $HOME/deployments/gitea start
