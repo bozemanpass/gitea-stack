@@ -2,12 +2,14 @@ version: "1.1"
 name: gitea
 description: "Gitea"
 repos:
-  - github.com/telackey/gitea@telackey/sort
   - github.com/telackey/gitea-stack
-  - gitea.com/gitea/act_runner
 containers:
-  - bpi/gitea
-  - bpi/act-runner
+  - name: bpi/act-runner
+    ref: github.com/bozemanpass/gitea-containers@main
+    path: ./act-runner
+  - name: bpi/gitea
+    ref: github.com/bozemanpass/gitea-containers@main
+    path: ./gitea
 pods:
   - name: gitea
     repository: telackey/gitea-stack
