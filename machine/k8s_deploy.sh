@@ -7,9 +7,13 @@ IMAGE_REGISTRY_USERNAME=""
 IMAGE_REGISTRY_PASSWORD=""
 HTTP_PROXY_FQDN="${MACHINE_FQDN}"
 HTTP_PROXY_CLUSTER_ISSUER=""
+BUILD_POLICY="as-needed"
 
 while (( "$#" )); do
    case $1 in
+      --build-policy)
+         BUILD_POLICY="$1"||die
+         ;;
       --debug)
          BPI_SCRIPT_DEBUG="true"
          ;;
@@ -54,7 +58,7 @@ docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_P
 $STACK_CMD fetch-stack telackey/gitea-stack
 
 $STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea setup-repositories
-$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea prepare-containers --image-registry $IMAGE_REGISTRY/bozemanpass --publish-images
+$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea prepare-containers --image-registry $IMAGE_REGISTRY/bozemanpass --build-policy $BUILD_POLICY --publish-images
 
 sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 
@@ -81,7 +85,6 @@ $STACK_CMD \
 mkdir $HOME/deployments
 
 $STACK_CMD \
-  --stack ~/bpi/gitea-stack/stacks/gitea \
   deploy \
     create \
      --spec-file gitea.yml \
