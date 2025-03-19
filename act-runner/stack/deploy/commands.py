@@ -1,4 +1,5 @@
 # Copyright © 2023 Vulcanize
+# Copyright © 2025 Bozeman Pass, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +20,15 @@ from pathlib import Path
 from shutil import copy
 
 
-def create(context, extra_args):
+def create(deploy_cmd_ctx, deployment_ctx, stack, extra_args):
     # Our goal here is just to copy the config file for act
     #k8s
-    deployment_config_dir = context.deployment_dir.joinpath("configmaps",
-                                                            "act-runner-config")
+    deployment_config_dir = deployment_ctx.deployment_dir.joinpath("configmaps", "act-runner-config")
+
     #docker
     if not os.path.exists(deployment_config_dir):
-        deployment_config_dir = context.deployment_dir.joinpath("data",
-                                                                "act-runner-config")
-    command_context = extra_args[2]
-    compose_file = [f for f in command_context.cluster_context.compose_files if "act-runner" in f][0]
+        deployment_config_dir = deployment_ctx.deployment_dir.joinpath("data", "act-runner-config")
+
+    compose_file = stack.get_pod_file_path("act-runner")
     source_config_file = Path(compose_file).parent.joinpath("config", "act-runner-config.yml")
     copy(source_config_file, deployment_config_dir)
