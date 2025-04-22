@@ -55,10 +55,10 @@ fi
 
 docker login --username "$IMAGE_REGISTRY_USERNAME" --password "$IMAGE_REGISTRY_PASSWORD" $IMAGE_REGISTRY
 
-$STACK_CMD fetch-stack telackey/gitea-stack
+$STACK_CMD fetch stack telackey/gitea-stack
 
-$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea setup-repositories
-$STACK_CMD --stack ~/bpi/gitea-stack/stacks/gitea prepare-containers --image-registry $IMAGE_REGISTRY/bozemanpass --build-policy $BUILD_POLICY --publish-images
+$STACK_CMD fetch repositories --stack ~/bpi/gitea-stack/stacks/gitea
+$STACK_CMD builf containers --stack ~/bpi/gitea-stack/stacks/gitea --image-registry $IMAGE_REGISTRY/bozemanpass --build-policy $BUILD_POLICY --publish-images
 
 sudo chmod a+r /etc/rancher/k3s/k3s.yaml
 
@@ -75,7 +75,7 @@ fi
 
 $STACK_CMD \
   --stack ~/bpi/gitea-stack/stacks/gitea \
-  deploy \
+  config \
     --deploy-to k8s \
     init \
       --output gitea.yml \
@@ -86,9 +86,8 @@ mkdir $HOME/deployments
 
 $STACK_CMD \
   deploy \
-    create \
      --spec-file gitea.yml \
      --deployment-dir $HOME/deployments/gitea
 
-$STACK_CMD deployment --dir $HOME/deployments/gitea push-images
-$STACK_CMD deployment --dir $HOME/deployments/gitea start
+$STACK_CMD manage --dir $HOME/deployments/gitea push-images
+$STACK_CMD manage --dir $HOME/deployments/gitea start
