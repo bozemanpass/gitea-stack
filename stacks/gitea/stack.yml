@@ -2,19 +2,17 @@ name: gitea
 description: "Gitea"
 containers:
   - name: bpi/act-runner
-    ref: github.com/bozemanpass/gitea-containers@main
+    ref: bozemanpass/gitea-containers@main
     path: ./act-runner
   - name: bpi/gitea
-    ref: github.com/bozemanpass/gitea-containers@main
+    ref: bozemanpass/gitea-containers@main
     path: ./gitea
 pods:
   - name: gitea
-    repository: telackey/gitea-stack
     path: gitea
     pre_start_command: "run-this-first.sh"
     post_start_command: "initialize-gitea.sh"
   - name: act-runner
-    repository: telackey/gitea-stack
     path: act-runner
     pre_start_command: "pre_start.sh"
     post_start_command: "post_start.sh"
