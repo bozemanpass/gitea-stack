@@ -20,7 +20,7 @@ from pathlib import Path
 from shutil import copy
 
 
-def create(deploy_cmd_ctx, deployment_ctx, stack, extra_args):
+def create(deploy_cmd_ctx, deployment_ctx, stack):
     # Our goal here is just to copy the config file for act
     #k8s
     deployment_config_dir = deployment_ctx.deployment_dir.joinpath("configmaps", "act-runner-config")

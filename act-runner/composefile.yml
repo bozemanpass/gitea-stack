@@ -1,4 +1,3 @@
-
 services:
   runner:
     image: bpi/act-runner:stack
