@@ -19,7 +19,7 @@ services:
     volumes:
       - gitea-data:/data
     ports:
-      - 3000
+      - 3000 # @stack http-proxy
     depends_on:
       - db
 
