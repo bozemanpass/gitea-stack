@@ -1,10 +1,10 @@
 name: gitea
 description: "Gitea"
 containers:
-  - name: bpi/act-runner
+  - name: bozemanpass/act-runner
     ref: bozemanpass/gitea-containers@main
     path: ./act-runner
-  - name: bpi/gitea
+  - name: bozemanpass/gitea
     ref: bozemanpass/gitea-containers@main
     path: ./gitea
 pods:

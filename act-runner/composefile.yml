@@ -1,6 +1,6 @@
 services:
   runner:
-    image: bpi/act-runner:stack
+    image: bozemanpass/act-runner:stack
     restart: always
     privileged: true
     environment:
@@ -9,7 +9,7 @@ services:
       - GITEA_RUNNER_REGISTRATION_TOKEN=${BPI_GITEA_RUNNER_REGISTRATION_TOKEN:-eMdEwIzSo87nBh0UFWZlbp308j6TNWr3WhWxQqIc}
       - GITEA_INSTANCE_URL=${BPI_GITEA_INSTANCE_URL_INTERNAL:-http://${STACK_SVC_GITEA:-gitea}:3000}
       # Leave blank for default gitea action runners: https://hub.docker.com/r/gitea/runner-images
-      #- GITEA_RUNNER_LABELS=${BPI_GITEA_RUNNER_LABELS:-ubuntu-latest:docker://bpi/act-runner-task-executor:local,ubuntu-22.04:docker://bpi/act-runner-task-executor:local}
+      #- GITEA_RUNNER_LABELS=${BPI_GITEA_RUNNER_LABELS:-ubuntu-latest:docker://bozemanpass/act-runner-task-executor:local,ubuntu-22.04:docker://bozemanpass/act-runner-task-executor:local}
     volumes:
       - act-runner-data:/data
       - act-runner-config:/config:ro
