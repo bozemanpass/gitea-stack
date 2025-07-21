@@ -3,8 +3,8 @@ services:
   gitea:
     image: bozemanpass/gitea:stack
     environment:
-      USER_UID: ${BPI_HOST_UID:-1000}
-      USER_GID: ${BPI_HOST_GID:-1000}
+      USER_UID: ${STACK_HOST_UID:-1000}
+      USER_GID: ${STACK_HOST_GID:-1000}
       GITEA__database__DB_TYPE: postgres
       GITEA__database__HOST: ${BPI_GITEA_DB_HOST:-${STACK_SVC_DB:-db}:5432}
       GITEA__database__NAME: ${BPI_GITEA_DB_NAME:-gitea}
@@ -32,7 +32,7 @@ services:
       POSTGRES_DB: ${BPI_GITEA_DB_NAME:-gitea}
     # Workaround below for lack of docker uid mapping. Change the container's postgres user's uid/gid to match the host user's
     entrypoint: bash
-    command: -c  'usermod -u ${BPI_HOST_UID:-1000} postgres;groupmod -g ${BPI_HOST_GID:-1000} postgres;exec /usr/local/bin/docker-entrypoint.sh postgres -c log_statement=all -c log_destination=stderr'
+    command: -c  'usermod -u ${STACK_HOST_UID:-1000} postgres;groupmod -g ${STACK_HOST_GID:-1000} postgres;exec /usr/local/bin/docker-entrypoint.sh postgres -c log_statement=all -c log_destination=stderr'
     ports:
       - 5432
     volumes:
