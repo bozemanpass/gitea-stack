@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Script that calls the Giteap API to delete one repo
 
-if [[ -n "$BPI_SCRIPT_DEBUG" ]]; then
+if [[ -n "$STACK_SCRIPT_DEBUG" ]]; then
     set -x
 fi
 

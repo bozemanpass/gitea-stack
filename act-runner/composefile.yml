@@ -1,5 +1,6 @@
 services:
   runner:
+    user: ${STACK_HOST_UID}:${STACK_HOST_GID}
     image: bozemanpass/act-runner:stack
     restart: always
     privileged: true

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-if [[ -n "$BPI_SCRIPT_DEBUG" ]]; then
+if [[ -n "$STACK_SCRIPT_DEBUG" ]]; then
     set -x
 fi
-mkdir -p ./gitea
-mkdir -p ./gitea/ssh
-mkdir -p ./act-runner
+
+mkdir -p ${STACK_DEPLOYMENT_DIR}/data/gitea-data/ssh

@@ -2,7 +2,7 @@
 # Script that calls the Giteap API to migrate one repo from
 # a source hosting platform into that Gitea instance
 
-if [[ -n "$BPI_SCRIPT_DEBUG" ]]; then
+if [[ -n "$STACK_SCRIPT_DEBUG" ]]; then
     set -x
 fi
 

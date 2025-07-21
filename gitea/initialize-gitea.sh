@@ -2,7 +2,7 @@
 # Run this script once after bringing up gitea in docker compose
 # TODO: add a check to detect that gitea has not fully initialized yet (no user relation error)
 
-if [[ -n "$BPI_SCRIPT_DEBUG" ]]; then
+if [[ -n "$STACK_SCRIPT_DEBUG" ]]; then
     set -x
 fi
 
@@ -65,10 +65,10 @@ done
 
 EXEC_CMD="stack manage --dir ${STACK_DEPLOYMENT_DIR} exec gitea"
 EXEC_CMD_DB="stack manage --dir ${STACK_DEPLOYMENT_DIR} exec db"
-${EXEC_CMD} "su -c 'gitea admin user list --admin' git" | grep -v -e '^ID' | awk '{ print $2 }' | grep ${GITEA_USER} > /dev/null
+${EXEC_CMD} "gitea admin user list --admin" | grep -v -e '^ID' | awk '{ print $2 }' | grep ${GITEA_USER} > /dev/null
 if [[ $? == 1 ]] ; then
     # Then create if it wasn't found
-    ${EXEC_CMD} "su -c 'gitea admin user create --admin --username ${GITEA_USER} --password ${GITEA_PASSWORD} --email ${GITEA_USER_EMAIL}' git"
+    ${EXEC_CMD} "gitea admin user create --admin --username ${GITEA_USER} --password ${GITEA_PASSWORD} --email ${GITEA_USER_EMAIL}"
 fi
 
 # HACK: sleep a bit because if we don't gitea will return empty responses

@@ -76,7 +76,7 @@ index 7b858350f..26bd2eeb3 100755
 +++ b/docker/root/etc/s6/gitea/run
 @@ -1,6 +1,25 @@
  #!/bin/bash
-+if [ -n "$BPI_SCRIPT_DEBUG" ]; then
++if [ -n "$STACK_SCRIPT_DEBUG" ]; then
 +    set -x
 +fi
 +
