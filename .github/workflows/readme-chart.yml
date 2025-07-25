@@ -1,0 +1,33 @@
+name: Build README Mermaid Chart
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "45 15 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Install stack
+        run: |-
+          wget -O /tmp/stack.$$ https://github.com/bozemanpass/stack/releases/latest/download/stack
+          mv /tmp/stack.$$ /usr/local/bin/stack
+          chmod a+x /usr/local/bin/stack
+      - name: Get other repos as needed
+        run: |-
+          stack prepare --stack stacks/gitea --build-policy fetch-repos
+      - name: Run update script
+        run: |-
+          scripts/update-chart.sh
+      - name: Commit and push if changed
+        run: |-
+          git diff
+          git config --global user.email "actions@users.noreply.github.com"
+          git config --global user.name "README-bot"
+          git add -A
+          git commit -m "Updated chart" || exit 0
+          git push
