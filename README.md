@@ -9,7 +9,7 @@ The diagram below was auto-generated using `stack chart`:
 <!-- CHART_BEGIN -->
 ```mermaid
 flowchart RL
-  gitea-gitea-http>:3000]:::http_target
+  gitea-gitea-http>":3000 (/)"]:::http_target
   gitea-gitea-http --> gitea-gitea
   subgraph gitea [gitea]
     gitea-gitea[[gitea]]:::http_service
